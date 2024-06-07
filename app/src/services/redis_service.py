@@ -1,6 +1,6 @@
-from app.config import get_redis_connection
+from src.config.config import Config
 
-redis_client= get_redis_connection()
+redis_client= Config.connect_redis()
 
 def save_data(key,value):
     redis_client.set(key, value)
