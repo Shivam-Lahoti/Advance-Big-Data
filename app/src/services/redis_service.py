@@ -26,6 +26,18 @@ def get_data(key):
             return None, None
     return None, None
 
+def get_all_data():
+    keys = redis_client.keys("plan:*")
+    logger.debug(f"Retrieved keys: {keys}")
+    all_data = []
+    for key in keys:
+        raw_data = redis_client.get(key)
+        if raw_data:
+            data = json.loads(raw_data)
+            if 'data' in data:
+                all_data.append(json.loads(data['data']))
+    return all_data
+
 def delete_data(key):
     logger.debug(f"Deleting data with key: plan:{key}")
     redis_client.delete(f"plan:{key}")

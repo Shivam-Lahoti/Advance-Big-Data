@@ -1,7 +1,7 @@
 from flask import request, jsonify, Response
 from jsonschema import validate, ValidationError
 import json
-from src.services.redis_service import save_data,get_data,delete_data
+from src.services.redis_service import save_data,get_data,get_all_data, delete_data
 import logging
 import os
 import hashlib
@@ -20,7 +20,6 @@ def create_data():
         logger.debug(f"Received data to save: {data}")
         validate(instance=data, schema=schema_data)
 
-    
         existing_data, existing_etag = get_data(data['objectId'])
         if existing_data:
             logger.debug(f"Data with key {data['objectId']} already exists.")
@@ -49,6 +48,11 @@ def read_data(key):
     else:
         logger.debug(f"Data not found for key: {key}")
         return jsonify({"error": "Data not found"}), 404
+    
+def read_all_data():
+    logger.debug(f"Received request to get all data")
+    all_data = get_all_data()
+    return jsonify(all_data), 200
 
 def delete_data_by_key(key):
     logger.debug(f"Received request to delete data with key: {key}")
