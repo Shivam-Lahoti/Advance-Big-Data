@@ -1,6 +1,7 @@
 import hashlib
 from flask import request, Response
 
+
 def generate_etag(data):
     return hashlib.sha1(data).hexdigest()
 
@@ -16,3 +17,4 @@ def etag_middleware(app):
                 response = Response(status=304)
 
         return response
+        
