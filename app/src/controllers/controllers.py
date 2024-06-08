@@ -23,7 +23,7 @@ def create_data():
 def read_data(key):
     data = get_data(key)
     if data:
-        return jsonify({"key": key, "value": json.loads(data)}), 200
+        return jsonify(json.loads(data)), 200
     else:
         return jsonify({"error": "Data not found"}), 404
 
