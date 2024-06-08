@@ -30,7 +30,7 @@ def create_data():
         return jsonify({"message": "Data saved!"}), 201
     except ValidationError as e:
         logger.error(f"Validation error: {str(e)}")
-        return jsonify({"error": str(e)}), 400
+        return jsonify({"error": "Invalid"}), 400
     except KeyError as e:
         logger.error(f"Key error: {str(e)}")
         return jsonify({"error": f"Missing required property: {e}"}), 400
