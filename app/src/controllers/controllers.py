@@ -20,7 +20,8 @@ def create_data():
         logger.debug(f"Received data to save: {data}")
         validate(instance=data, schema=schema_data)
 
-        existing_data, _ = get_data(data['objectId'])
+    
+        existing_data, existing_etag = get_data(data['objectId'])
         if existing_data:
             logger.debug(f"Data with key {data['objectId']} already exists.")
             return jsonify({"error": "Data with this ID already exists."}), 409
@@ -41,7 +42,7 @@ def read_data(key):
     if data:
         logger.debug(f"Data found for key: {key}, data: {data}, etag: {etag}")
         if request.headers.get('If-None-Match') == etag:
-            return Response(status=304)
+            return jsonify({"message": "No changes made"}), 304
         response = jsonify(json.loads(data))
         response.set_etag(etag)
         return response
