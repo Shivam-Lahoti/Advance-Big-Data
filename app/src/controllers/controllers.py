@@ -1,7 +1,7 @@
 from flask import request, jsonify, Response
 from jsonschema import validate, ValidationError
 import json
-from src.services.redis_service import save_data,get_data,get_all_data, delete_data
+from src.services.redis_service import save_data,get_data,get_all_data, delete_data, patch_data
 import logging
 import os
 import hashlib
@@ -62,3 +62,22 @@ def delete_data_by_key(key):
         return jsonify({"message": "Data deleted"}), 200
     else:
         return jsonify({"message": "Data already deleted or does not exist"}), 404
+    
+def patch_data_by_key(key):
+    updates = request.get_json()
+    try:
+        validate(instance=updates, schema=schema_data)
+    except ValidationError as e:
+        logger.error(f"Validation error: {str(e)}")
+        return jsonify({"error": str(e)}), 400
+
+    data, etag = patch_data(key, updates)   
+    if data is None and etag is None:
+        return jsonify({"message": "No changes made"}), 304
+    elif data:
+        response = jsonify(data)
+        response.set_etag(etag)
+        return response
+    else:
+        return jsonify({"error": "Data not found"}), 404
+

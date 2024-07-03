@@ -2,6 +2,7 @@ from src.config.config import Config
 import json
 import os
 import logging
+import hashlib
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -41,4 +42,20 @@ def get_all_data():
 def delete_data(key):
     logger.debug(f"Deleting data with key: plan:{key}")
     redis_client.delete(f"plan:{key}")
+
+def patch_data(key, updates):
+    data, etag = get_data(key)
+    if data:
+        updated_data = json.loads(data)
+        updated_data.update(updates)
+        
+        new_etag = hashlib.sha1(json.dumps(updated_data).encode()).hexdigest()
+        
+        if updated_data == json.loads(data):
+            logger.debug(f"No changes made for key: {key}")
+            return None, None
+        
+        save_data(key, json.dumps(updated_data), new_etag)
+        return updated_data, new_etag
+    return None, None
 
