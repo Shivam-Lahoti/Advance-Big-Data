@@ -39,6 +39,7 @@ def get_all_data():
                 all_data.append(json.loads(data['data']))
     return all_data
 
+
 def delete_data(key):
     logger.debug(f"Deleting data with key: plan:{key}")
     redis_client.delete(f"plan:{key}")
@@ -47,10 +48,21 @@ def patch_data(key, updates):
     data, etag = get_data(key)
     if data:
         updated_data = json.loads(data)
+        
+        
+        if 'linkedPlanServices' in updates:
+            if 'linkedPlanServices' not in updated_data:
+                updated_data['linkedPlanServices'] = []
+            for new_service in updates['linkedPlanServices']:
+                updated_data['linkedPlanServices'].append(new_service)
+            del updates['linkedPlanServices']  
+        
+       
         updated_data.update(updates)
         
         new_etag = hashlib.sha1(json.dumps(updated_data).encode()).hexdigest()
         
+    
         if updated_data == json.loads(data):
             logger.debug(f"No changes made for key: {key}")
             return None, None
